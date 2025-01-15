@@ -13,16 +13,17 @@ type Logger struct {
 	logFile string
 	maxSize int64
 	mutex   sync.Mutex
+	appName string
 }
 
-func NewLogger(logFile string, maxSize int64) *Logger {
+func NewLogger(logFile string, maxSize int64, appName string) *Logger {
 	if logFile == "" {
 		logFile = "log.txt"
 	}
 	if maxSize <= 0 {
 		maxSize = 1024 * 1024 // Default to 1MB
 	}
-	return &Logger{logFile: logFile, maxSize: maxSize}
+	return &Logger{logFile: logFile, maxSize: maxSize, appName: appName}
 }
 
 func (l *Logger) AddToLog(errorType, msg string) error {
@@ -75,7 +76,7 @@ func (l *Logger) checkLogFile() error {
 	return nil
 }
 
-func Notify(appName, msg string) error {
-	cmd := exec.Command("notify-send", "-i", "preferences-system", appName, msg)
+func (l *Logger) Notify(msg string) error {
+	cmd := exec.Command("notify-send", "-i", "preferences-system", l.appName, msg)
 	return cmd.Run()
 }
